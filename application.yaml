@@ -1,0 +1,30 @@
+# example values
+
+indexing-settings:
+  sites:
+    - url: https://lenta.ru/
+      name: Лента.ру
+#    - url: https://volochek.life/
+#      name: Волочек
+#    - url: https://www.playback.ru
+#      name: PlayBack.Ru
+server:
+  port: 8080
+
+spring:
+  datasource:
+    username: root
+    password: Q!w2e3r4t5
+    url: jdbc:mysql://localhost:3306/search_engine?useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
+    charset: utf8mb4
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+logging:
+  level:
+    org.springframework: ERROR
+    searchengine: INFO
