@@ -34,7 +34,7 @@ public class PageNode {
 
     public HashSet<String> getChildrenPageUrl(){
         HashSet<String> links = new HashSet<>();
-        Elements elementsWhitShortRoute = document.select("a[href~=^\\/[a-z0-9-_/]+\\/$]");
+        Elements elementsWhitShortRoute = document.select("a[href~=^[/a-z0-9-_/]]");
         elementsWhitShortRoute.forEach(e -> {
             String childrenPageUrl = e.attr("href");
             String url = siteGraph.getSite().getUrl() + childrenPageUrl;
