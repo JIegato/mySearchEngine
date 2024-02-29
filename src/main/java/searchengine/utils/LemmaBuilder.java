@@ -27,11 +27,9 @@ public class LemmaBuilder {
     private void build() throws IOException {
         lemmas = Lemmatizator.init().getLemmasNumberOfReferences(page.getContent());
         for (Map.Entry<String, Integer> entry: lemmas.entrySet()){
-            if (!SiteIndexBuilder.IsStarted()) return;
-            synchronized (LemmaBuilder.class){
-                Lemma lemma = createIfNotAvailable(entry.getKey());
-                IndexBuilder.buildIndex(page, lemma, entry.getValue());
-            }
+            if (!SiteIndexBuilder.isStarted()) return;
+            Lemma lemma = createIfNotAvailable(entry.getKey());
+            IndexBuilder.buildIndex(page, lemma, entry.getValue());
         }
     }
 
@@ -50,6 +48,5 @@ public class LemmaBuilder {
         SearchEngineRepository.lemmaRepository.save(lemma);
         return lemma;
     }
-
 
 }

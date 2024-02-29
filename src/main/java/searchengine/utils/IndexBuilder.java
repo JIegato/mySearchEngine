@@ -17,23 +17,18 @@ public class IndexBuilder {
         IndexBuilder builder = new IndexBuilder();
         builder.setPage(page);
         builder.setLemma(lemma);
-        synchronized (IndexBuilder.class){
-            builder.createIfNotAvailable(rank);
-        }
+        builder.createIfNotAvailable(rank);
     }
 
     private void createIfNotAvailable(int rank){
-        Optional indexOptional = SearchEngineRepository.indexRepository.findByPageAndLemma(page, lemma);
-        if (!indexOptional.isEmpty()){
-            Index index = (Index) indexOptional.get();
+        Optional<Index> indexOptional = SearchEngineRepository.indexRepository.findByPageAndLemma(page, lemma);
+        if (indexOptional.isEmpty()){
+            Index index = new Index();
+            index.setPage(page);
+            index.setLemma(lemma);
             index.setRank((float) rank);
             SearchEngineRepository.indexRepository.save(index);
-
         }
-        Index index = new Index();
-        index.setPage(page);
-        index.setLemma(lemma);
-        index.setRank((float) rank);
-        SearchEngineRepository.indexRepository.save(index);
     }
 }
+

@@ -2,10 +2,10 @@
 
 indexing-settings:
   sites:
-    - url: https://lenta.ru/
-      name: Лента.ру
-    - url: https://volochek.life/
-      name: Волочек
+#    - url: https://lenta.ru/
+#      name: Лента.ру
+#    - url: https://volochek.life/
+#      name: Волочек
     - url: https://www.playback.ru
       name: PlayBack.Ru
 server:

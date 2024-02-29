@@ -13,7 +13,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class SiteIndexBuilder implements Runnable{
+public class SiteIndexBuilder implements Runnable {
     private String url;
     private String siteName;
     private static volatile boolean started;
@@ -33,24 +33,20 @@ public class SiteIndexBuilder implements Runnable{
         forkJoinPool.shutdown();
 
         ScheduledExecutorService checkService = Executors.newSingleThreadScheduledExecutor();
-        checkService.scheduleAtFixedRate(()->{
-            if (forkJoinPool.isTerminated()){
+        checkService.scheduleAtFixedRate(() -> {
+            if (forkJoinPool.isTerminated()) {
                 site.setStatus(IndexStatus.INDEXED);
                 site.setStatusTime(new Date());
                 SearchEngineRepository.siteRepository.saveAndFlush(site);
                 checkService.shutdownNow();
             }
-        },1, 10, TimeUnit.SECONDS);
+        }, 1, 1, TimeUnit.SECONDS);
 
     }
 
-    public DefaultResponse indexPage(String pageUrl){
-
-        Optional siteOptional = SearchEngineRepository.siteRepository.findByUrl(url);
-        if (siteOptional.isEmpty()){
-            return ErrorResponse.getErrorMessage("Сайт ранее не индексировался.");
-        }
-        Site site = (Site) siteOptional.get();
+    public DefaultResponse indexPage(String pageUrl) {
+        Optional<Site> siteOptional = SearchEngineRepository.siteRepository.findByUrl(url);
+        Site site = siteOptional.get();
         SiteGraph siteGraph = new SiteGraph(site);
         PageIndexBuilder pageIndexBuilder = PageIndexBuilder.init(siteGraph, pageUrl, true);
         pageIndexBuilder.deletePageByUrl();
@@ -61,15 +57,15 @@ public class SiteIndexBuilder implements Runnable{
         return new DefaultResponse(true);
     }
 
-    public static void start(){
+    public static void start() {
         SiteIndexBuilder.started = true;
     }
 
-    public static void stop(){
+    public static void stop() {
         SiteIndexBuilder.started = false;
     }
 
-    public static boolean IsStarted(){
+    public static boolean isStarted() {
         return started;
     }
 

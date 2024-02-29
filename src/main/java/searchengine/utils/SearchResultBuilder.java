@@ -2,6 +2,7 @@ package searchengine.utils;
 
 import searchengine.dto.search.SearchResponse;
 import searchengine.dto.search.SearchResulItem;
+import searchengine.model.Index;
 import searchengine.model.Lemma;
 import searchengine.model.Page;
 import searchengine.model.Site;
@@ -12,8 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SearchResultBuilder {
-    private final int PAGE_PERCENTAGE_LIMIT = 40;
-
+    private final int pagePercentageLimit = 500;
 
     public SearchResponse getSearchResult(String siteUrl, String query) throws IOException {
         Site site = getSite(siteUrl);
@@ -27,7 +27,7 @@ public class SearchResultBuilder {
 
         SearchResponse response = new SearchResponse();
         response.setCount(pages.size());
-        List<SearchResulItem> resulItems = new ArrayList<>();
+        List<SearchResulItem> resultItems = new ArrayList<>();
         relevancyPages.forEach(pageEntry -> {
             Page page = pageEntry.getKey();
             SearchResulItem item = new SearchResulItem();
@@ -41,29 +41,25 @@ public class SearchResultBuilder {
                 item.setSnippet("");
             }
             item.setRelevance(pageEntry.getValue());
-            resulItems.add(item);
+            resultItems.add(item);
         });
 
-        response.setData(resulItems);
+        response.setData(resultItems);
         return response;
     }
 
-    private List<Page> getCommonPagesForLemmas(List<Lemma> lemmas){
+    private List<Page> getCommonPagesForLemmas(List<Lemma> lemmas) {
         if (lemmas.isEmpty()) return new ArrayList<Page>();
-        List<Page> pages = lemmas.get(0).getIndexes().stream().collect(
-                ()->new ArrayList<Page>(),
-                (l, i) ->l.add(i.getPage()),
-                (l1, l2) -> l1.addAll(l2)
+        List<Page> pages = lemmas.get(0).getIndexes().stream().map(Index::getPage).collect(
+                ArrayList::new,
+                List::add,
+                List::addAll
         );
         for (int i = 1; i < lemmas.size(); i++) {
-            ArrayList<Page> pagesByLemma = lemmas.get(i).getIndexes().stream().collect(
-                    ()->new ArrayList<Page>(),
-                    (list, index) ->list.add(index.getPage()),
-                    (pages1, pages2) -> pages1.addAll(pages2)
-            );
+            Set<Page> pagesByLemma = lemmas.get(i).getIndexes().stream().map(Index::getPage).collect(Collectors.toSet());
             Iterator<Page> pageIterator = pages.iterator();
-            while (pageIterator.hasNext()){
-                if (!pagesByLemma.contains(pageIterator.next())){
+            while (pageIterator.hasNext()) {
+                if (!pagesByLemma.contains(pageIterator.next())) {
                     pageIterator.remove();
                 }
             }
@@ -72,25 +68,18 @@ public class SearchResultBuilder {
     }
 
     private List<Lemma> getInfrequentLemmas(List<Lemma> lemmaList, long countPages) {
-        List<Lemma> result = new ArrayList<>();
-        for (Lemma lemma : lemmaList){
-            long count = lemma.getIndexes().size();
-            if ( (int) (100*((double)count)/((double)countPages))>PAGE_PERCENTAGE_LIMIT ){
-                continue;
-            }
-            result.add(lemma);
-        }
-        return result.stream()
+        return lemmaList.stream()
+                .filter(lemma -> {
+                    long count = lemma.getIndexes().size();
+                    return (int) (100 * ((double) count) / ((double) countPages)) <= pagePercentageLimit;
+                })
                 .sorted(new LemmaComparator())
                 .collect(Collectors.toList());
     }
 
-    private Site getSite(String siteUrl){
+    private Site getSite(String siteUrl) {
         Optional<Site> siteOptional = SearchEngineRepository.siteRepository.findByUrl(siteUrl);
-        if (siteOptional.isEmpty()){
-            return null;
-        }
-        return (Site) siteOptional.get();
+        return siteOptional.orElse(null);
     }
 
     private Set<String> getWordsFromText(String text) throws IOException {
@@ -98,42 +87,37 @@ public class SearchResultBuilder {
     }
 
     private long getCountPages(Site site) {
-        if (site == null){
+        if (site == null) {
             return SearchEngineRepository.pageRepository.count();
-        }else {
+        } else {
             return SearchEngineRepository.pageRepository.countBySite(site);
         }
     }
 
     private List<Lemma> getLemmaList(Site site, String query) throws IOException {
         Set<String> words = getWordsFromText(query);
-        if (site == null){
-            List<Lemma> lemmaList = SearchEngineRepository.lemmaRepository.findAll().stream()
+        if (site == null) {
+            return SearchEngineRepository.lemmaRepository.findAll().stream()
                     .filter(lemma -> words.contains(lemma.getLemma()))
                     .collect(Collectors.toList());
-            return lemmaList;
-        }else {
-            List<Lemma> lemmaList = site.getLemmas().stream()
+        } else {
+            return site.getLemmas().stream()
                     .filter(lemma -> words.contains(lemma.getLemma()))
                     .collect(Collectors.toList());
-            return lemmaList;
         }
     }
 
-
-    private static class LemmaComparator implements Comparator<Lemma>{
+    private static class LemmaComparator implements Comparator<Lemma> {
 
         @Override
         public int compare(Lemma l1, Lemma l2) {
-            if (l1.getFrequency() < l2.getFrequency())
-            {
+            if (l1.getFrequency() < l2.getFrequency()) {
                 return -1;
             }
-            if (l1.getFrequency()> l2.getFrequency()){
+            if (l1.getFrequency() > l2.getFrequency()) {
                 return 1;
             }
             return 0;
         }
     }
-
 }

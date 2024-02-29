@@ -43,7 +43,7 @@ public class PageIndexBuilder extends RecursiveAction {
 
     @Override
     protected void compute() {
-        if (!SiteIndexBuilder.IsStarted()) {
+        if (!SiteIndexBuilder.isStarted()) {
             return;
         };
         try {
