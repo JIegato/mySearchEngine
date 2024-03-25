@@ -1,31 +1,27 @@
 package searchengine.utils;
 
-import org.apache.commons.text.StringEscapeUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
+import searchengine.model.Lemma;
+
 import java.io.IOException;
+import java.util.List;
 
 public class TextFragmentBuilder {
-    public static String buildSnippet(String query, String htmlContext) throws IOException {
-        String snippet = getRightSnippet(query, htmlContext);
-        return setBold(query, snippet);
+    public static String buildSnippet(List<Lemma> queries, String htmlContext) throws IOException {
+        return getRightSnippet(queries, htmlContext).toString();
     }
 
-    private static String setBold(String query, String text)  {
-        return text.toLowerCase().replaceAll(query, "<b>" + query + "</b>");
-    }
-
-    private static String getRightSnippet(String query, String htmlContext)  {
-        String decodedHtml = StringEscapeUtils.unescapeHtml4(htmlContext);
-        Document document = Jsoup.parse(decodedHtml);
-        String elements = document.text();
+    private static StringBuilder getRightSnippet(List<Lemma> queries , String htmlContext) {
         String point = ".";
-        int searchWord = elements.indexOf(query);
-        int pointBefore = elements.lastIndexOf(point, searchWord);
-        int pointAfter = elements.indexOf(point, searchWord);
-        return elements.substring(pointBefore+1, pointAfter);
+        StringBuilder builder = new StringBuilder();
+        for (Lemma query: queries) {
+            String word = query.getLemma();
+            int searchWord = htmlContext.toLowerCase().indexOf(word);
+            int pointBefore = htmlContext.toLowerCase().lastIndexOf(point, searchWord);
+            int pointAfter = htmlContext.toLowerCase().indexOf(point, searchWord);
+            String string = htmlContext.toLowerCase().substring(pointBefore + 1, pointAfter);
+            builder.append(string.replaceAll(word, "<b>" + word + "</b>") + "\n");
+        }
+        return builder;
     }
-
-
 }
 

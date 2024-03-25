@@ -56,7 +56,7 @@ public class PageNode {
     }
 
     private String clearHtml(String text) {
-        Pattern pattern = Pattern.compile("[^а-яА-Я\\s]+", Pattern.MULTILINE);
+        Pattern pattern = Pattern.compile("[^а-яА-Я\\s\\.]+", Pattern.MULTILINE);
         Matcher matcher = pattern.matcher(text);
         String result = matcher.replaceAll(" ");
         return clearSpaces(result);

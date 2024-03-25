@@ -1,10 +1,12 @@
 package searchengine.utils;
-
 import org.apache.lucene.morphology.LuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 
+
 import java.io.IOException;
 import java.util.*;
+
+
 
 public class Lemmatizator {
     private final LuceneMorphology luceneMorphology;
@@ -80,4 +82,15 @@ public class Lemmatizator {
     private boolean hasParticleProperty(String wordBase) {
         return Arrays.stream(particlesNames).anyMatch(property -> wordBase.toUpperCase().contains(property));
     }
+
+//    public Set<String> getAllForm(String text) throws IOException {
+//        var meanings = lookupForMeanings(text);
+//        Set<String> lemmaSet= new HashSet<>();
+//        for (var t : meanings.get(0).getTransformations()) {
+//            lemmaSet.add(t.toString());
+//        }
+//        return lemmaSet;
+//    }
+
+
 }
