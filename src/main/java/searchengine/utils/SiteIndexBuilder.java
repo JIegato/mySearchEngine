@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.concurrent.*;
 
 public class SiteIndexBuilder implements Runnable {
-    private IndexingServiceImpl indexingService;
     private String url;
     private String siteName;
     private static volatile boolean started;

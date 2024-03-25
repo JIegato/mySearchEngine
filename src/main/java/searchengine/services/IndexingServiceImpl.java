@@ -13,7 +13,6 @@ import searchengine.utils.SiteIndexBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.WeakHashMap;
 import java.util.concurrent.*;
 
 @Service
