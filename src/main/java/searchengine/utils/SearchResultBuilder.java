@@ -21,10 +21,16 @@ public class SearchResultBuilder {
         long countPages = getCountPages(site);
         List<Lemma> lemmaInfrequentList = getInfrequentLemmas(lemmaFullList, countPages);
         List<Page> pages = getCommonPagesForLemmas(lemmaInfrequentList);
-        if (pages.isEmpty()) return new SearchResponse();
+        if (pages.isEmpty()) {
+            SearchResponse response = new SearchResponse();
+            response.setCount(0);
+            List<SearchResulItem> resultItems = new ArrayList<>();
+            response.setData(resultItems);
+            return response;
+        }
         RelevancyBuilder relevancyBuilder = new RelevancyBuilder(pages, lemmaInfrequentList);
         List<Map.Entry<Page, Float>> relevancyPages = relevancyBuilder.getRelevancyList();
-//        Set<String> set = Lemmatizator.init().getAllForm(query);
+
 
         SearchResponse response = new SearchResponse();
         response.setCount(pages.size());

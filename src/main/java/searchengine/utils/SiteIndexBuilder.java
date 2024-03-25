@@ -1,19 +1,17 @@
 package searchengine.utils;
 
 import searchengine.dto.share.DefaultResponse;
-import searchengine.dto.share.ErrorResponse;
 import searchengine.model.IndexStatus;
 import searchengine.model.Site;
 import searchengine.repository.SearchEngineRepository;
+import searchengine.services.IndexingServiceImpl;
 
 import java.util.Date;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class SiteIndexBuilder implements Runnable {
+    private IndexingServiceImpl indexingService;
     private String url;
     private String siteName;
     private static volatile boolean started;
@@ -41,7 +39,6 @@ public class SiteIndexBuilder implements Runnable {
                 checkService.shutdownNow();
             }
         }, 1, 1, TimeUnit.SECONDS);
-
     }
 
     public DefaultResponse indexPage(String pageUrl) {

@@ -9,7 +9,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -65,12 +64,10 @@ public class PageNode {
     private String clearSpaces(String text){
         Pattern pattern = Pattern.compile("[\\s]+", Pattern.MULTILINE);
         Matcher matcher = pattern.matcher(text);
-        String result = matcher.replaceAll(" ");
-        return result;
+        return matcher.replaceAll(" ");
     }
 
     public String getEscapeHtmlContent() {
-        String result = StringEscapeUtils.escapeHtml4(document.outerHtml());
-        return result;
+        return StringEscapeUtils.escapeHtml4(document.outerHtml());
     }
 }

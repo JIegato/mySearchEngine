@@ -10,7 +10,7 @@ public class TextFragmentBuilder {
         return getRightSnippet(queries, htmlContext).toString();
     }
 
-    private static StringBuilder getRightSnippet(List<Lemma> queries , String htmlContext) {
+    private static StringBuilder getRightSnippet(List<Lemma> queries , String htmlContext) throws IOException {
         String point = ".";
         StringBuilder builder = new StringBuilder();
         for (Lemma query: queries) {

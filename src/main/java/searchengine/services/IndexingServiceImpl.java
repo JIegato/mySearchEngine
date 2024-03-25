@@ -13,28 +13,30 @@ import searchengine.utils.SiteIndexBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 import java.util.concurrent.*;
 
 @Service
 @RequiredArgsConstructor
 public class IndexingServiceImpl implements IndexingService {
-    private static final int THREADS = Runtime.getRuntime().availableProcessors();
-    private static ExecutorService executor = Executors.newFixedThreadPool(THREADS);
+    ExecutorService executors;
+    private static final int THREADS = Runtime.getRuntime().availableProcessors() / 2;
     private final SitesList sitesList;
 
     @Override
     public DefaultResponse startIndexing() {
         if (SiteIndexBuilder.isStarted()) {
-            return ErrorResponse.getErrorMessage("Индексация уже запущена");
+            stopIndexing();
         }
         SearchEngineRepository.siteRepository.deleteAll();
         SiteIndexBuilder.start();
         List<Site> siteListCfg = sitesList.getSites();
         List<Future<DefaultResponse>> futures = new ArrayList<>();
-
+        ExecutorService executor = Executors.newFixedThreadPool(THREADS);
+        executors = executor;
         for (Site site : siteListCfg) {
             SiteIndexBuilder siteIndexBuilder = new SiteIndexBuilder(site.getUrl(), site.getName());
-            Future<DefaultResponse> future = (Future<DefaultResponse>) executor.submit(siteIndexBuilder);
+            Future<DefaultResponse> future = (Future<DefaultResponse>) executors.submit(siteIndexBuilder);
             futures.add(future);
         }
 
@@ -51,15 +53,11 @@ public class IndexingServiceImpl implements IndexingService {
 
     @Override
     public DefaultResponse stopIndexing() {
-        if (!SiteIndexBuilder.isStarted()) {
-            return ErrorResponse.getErrorMessage("Индексация не запущена");
-        }
-
         SiteIndexBuilder.stop();
-        executor.shutdown();
+        executors.shutdown();
         try {
-            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-                executor.shutdownNow();
+            if (!executors.awaitTermination(10, TimeUnit.SECONDS)) {
+                executors.shutdown();
             }
         } catch (InterruptedException e) {
             return ErrorResponse.getErrorMessage(e.getMessage());
