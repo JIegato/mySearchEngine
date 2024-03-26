@@ -1,11 +1,13 @@
 package searchengine.utils;
 import org.apache.lucene.morphology.LuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
+import searchengine.model.Lemma;
 
 
 import java.io.IOException;
 import java.util.*;
 
+import static com.github.demidko.aot.WordformMeaning.lookupForMeanings;
 
 
 public class Lemmatizator {
@@ -83,14 +85,16 @@ public class Lemmatizator {
         return Arrays.stream(particlesNames).anyMatch(property -> wordBase.toUpperCase().contains(property));
     }
 
-//    public Set<String> getAllForm(String text) throws IOException {
-//        var meanings = lookupForMeanings(text);
-//        Set<String> lemmaSet= new HashSet<>();
-//        for (var t : meanings.get(0).getTransformations()) {
-//            lemmaSet.add(t.toString());
-//        }
-//        return lemmaSet;
-//    }
+    public Set<String> getAllForm(List<Lemma> lemmaList) throws IOException {
+        Set<String> lemmaSet= new HashSet<>();
+        for (Lemma l: lemmaList) {
+            var meanings = lookupForMeanings(l.getLemma());
+            for (var t : meanings.get(0).getTransformations()) {
+                lemmaSet.add(t.toString());
+            }
+        }
+        return lemmaSet;
+    }
 
 
 }

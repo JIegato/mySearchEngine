@@ -31,7 +31,7 @@ public class SearchResultBuilder {
         RelevancyBuilder relevancyBuilder = new RelevancyBuilder(pages, lemmaInfrequentList);
         List<Map.Entry<Page, Float>> relevancyPages = relevancyBuilder.getRelevancyList();
 
-
+        Set<String> lemmaSet = Lemmatizator.init().getAllForm(lemmaInfrequentList);
         SearchResponse response = new SearchResponse();
         response.setCount(pages.size());
         List<SearchResulItem> resultItems = new ArrayList<>();
@@ -43,7 +43,7 @@ public class SearchResultBuilder {
             item.setUri(page.getPath());
             item.setTitle(page.getTitle());
             try {
-                item.setSnippet(TextFragmentBuilder.buildSnippet(lemmaInfrequentList, page.getContent()));
+                item.setSnippet(TextFragmentBuilder.buildSnippet(lemmaSet, page.getContent()));
             } catch (IOException e) {
                 item.setSnippet("");
             }
