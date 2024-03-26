@@ -17,6 +17,7 @@ spring:
     password: Q!w2e3r4t5
     url: jdbc:mysql://localhost:3306/search_engine?useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
     charset: utf8mb4
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     properties:
       hibernate:
